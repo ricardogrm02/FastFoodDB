@@ -1,11 +1,11 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const blogSchema = new mongoose.Schema({
-    title: String,
-    subTitle: String,
-    description: String,
-})
+const reviewSchema = new mongoose.Schema({
+  rating: Number,
+  title: String,
+  description: String,
+});
 
-const Blog = mongoose.model('BlogDB', blogSchema)
+const Review = mongoose.model("BlogDB", reviewSchema);
 
-module.exports = Blog
+module.exports = Review;
