@@ -1,11 +1,14 @@
 const mongoose = require("mongoose");
 
-const reviewSchema = new mongoose.Schema({
-  rating: Number,
-  title: String,
-  description: String,
-});
+const customerSchema = new mongoose.Schema({
+  userName: {type: String, required: true},
+  email: {type: String, required: true, unique: true},
+  password: {type: String, required: true},
+  quote: {type: String}
+},{
+  collection: 'Customer'
+})
 
-const Review = mongoose.model("BlogDB", reviewSchema);
+const Customer = mongoose.model("customer", customerSchema);
 
-module.exports = Review;
+module.exports = Customer;
