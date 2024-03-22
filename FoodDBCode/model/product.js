@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const productSchema = new mongoose.Schema({
     productName: {type: String, required: true},
-    productPrice: {type: String, required: true, unique: true},
+    productPrice: {type: Number, required: true, unique: true},
     productId: {type: Number, required: true},
     calorieAmount: {type: Number, required: true},
 }

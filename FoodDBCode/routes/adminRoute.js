@@ -50,4 +50,34 @@ router.post('/login', async (req, res) => {
 
 })
 
+
+/*  productName: {type: String, required: true},
+    productPrice: {type: Number, required: true, unique: true},
+    productId: {type: Number, required: true},
+    calorieAmount: {type: Number, required: true},*/
+router.post("/create/product", async (req, res) => {
+    try{
+        await Product.create({
+            productName: req.body.productName,
+            productPrice: req.body.productPrice,
+            productId: req.body.productId,
+            calorieAmount: req.body.calorieAmount
+        })
+        res.status(200).send("Added new product ot the database")
+    }
+    catch(err){
+       res.json({status: 'error', error: 'could not post product to database'})
+    }
+})
+
+/*router.get("/create/product"), async (req, res) => {
+    const productList = await Product.find({})
+    try {
+        await productList.save()
+        res.status(200).send(productList)
+    } catch (err) {
+        res.json({status: 'error', error: "Could not retrieve product from the database"})
+    }
+}
+*/ 
 module.exports = router;
