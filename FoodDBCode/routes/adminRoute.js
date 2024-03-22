@@ -70,14 +70,16 @@ router.post("/create/product", async (req, res) => {
     }
 })
 
-/*router.get("/create/product"), async (req, res) => {
+router.get("/view/product", async (req, res) => {
     const productList = await Product.find({})
     try {
-        await productList.save()
         res.status(200).send(productList)
     } catch (err) {
-        res.json({status: 'error', error: "Could not retrieve product from the database"})
+        res.status(500).json({status: 'error', error: "Could not retrieve product from the database"})
     }
-}
-*/ 
+})
+
+
+
+
 module.exports = router;
