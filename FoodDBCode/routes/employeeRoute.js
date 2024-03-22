@@ -1,13 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../model/employee");
+const Employee = require("../model/employee");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Hours = require("../model/hours");
 
 router.post("/register", async (req, res) => {
   try {
     const newPassword = await bcrypt.hash(req.body.password, 10);
-    await User.create({
+    await Employee.create({
       name: req.body.name,
       email: req.body.email,
       password: newPassword,
@@ -19,7 +20,7 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const user = await User.find({
+  const user = await Employee.find({
     email: req.body.email,
   });
 
@@ -48,18 +49,18 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// clock in hours
-router.post("/hours", async (req, res) => {
-  await User.create({
-    hours: req.body.hours,
-  });
-  res.status(200).send("User clocked in hours");
-});
+// clock in hours;
+// router.post("/hours", async (req, res) => {
+//   await User.create({
+//     hours: req.body.hours,
+//   });
+//   res.status(200).send("User clocked in hours");
+// });
 
-// modify hours worked
-router.update("/hours", async (req, res) => {
-  await User.updateOne();
-});
+// // modify hours worked
+// router.update("/hours", async (req, res) => {
+//   await User.updateOne();
+// });
 
 router.post("/quote", async (req, res) => {
   const authHeader = req.headers["authorization"];
@@ -71,7 +72,7 @@ router.post("/quote", async (req, res) => {
   try {
     const decoded = jwt.verify(token, "secret123");
 
-    const user = await User.findOne({
+    const user = await Employee.findOne({
       email: decoded.email,
     });
 
@@ -79,7 +80,7 @@ router.post("/quote", async (req, res) => {
       return res.json({ status: "error", error: "Not a user" });
     }
 
-    await User.updateOne(
+    await Employee.updateOne(
       { email: decoded.email },
       { $set: { quote: req.body.quote } },
     );
