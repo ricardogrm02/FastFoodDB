@@ -79,7 +79,17 @@ router.get("/view/product", async (req, res) => {
     }
 })
 
-
+router.delete('/delete/product/:productId', async (req, res) => {
+    try {
+        const product = await Product.findOneAndDelete({ productId: req.params.productId });
+        if (!product) {
+            return res.status(404).send(); // Send 404 if no blog was found
+        }
+        res.send(`Successfuly deleted product: ${product}`); // Send deleted blog
+    } catch (error) {
+        res.status(500).send(error); // Send 500 if an error occurs
+    }
+});
 
 
 module.exports = router;
