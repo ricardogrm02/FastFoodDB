@@ -141,34 +141,26 @@ router.post("/request-deletion", async (req, res) => {
   try {
     const decoded = jwt.verify(token, "secret123");
 
-    // Assuming you have a way to get the employee ID to update
-    const employeeId = req.body.employeeId;
-
-    if (!employeeId) {
-      return res
-        .status(400)
-        .json({ status: "error", error: "Missing employee ID" });
-    }
-    console.log("Employee ID:", employeeId);
-    const employee = await Employee.findByIdAndUpdate(
-      employeeId,
-      { deletionStatus: "Pending Deletion" },
-      { new: false },
+    const employee = await Employee.findOneAndUpdate(
+      { email: decoded.email },
+      { deletionStatus: "Pending Deletion", reason: req.body.reason },
+      { new: true },
     );
-    console.log("updating result:", employee);
 
     if (!employee) {
-      return res
-        .status(404)
-        .json({ status: "error", error: "Employee not found" });
+      return res.status(404).json({
+        status: "error",
+        error: "Employee not found or not authorized",
+      });
     }
 
     res.json({ status: "OK", message: "Deletion request submitted" });
   } catch (err) {
-    console.error("Error submitting deletion request:", err);
+    console.error("Error submitting deletion request:", err); // Log the error
     res
       .status(500)
       .json({ status: "error", error: "Error submitting request" });
   }
 });
+
 module.exports = router;
