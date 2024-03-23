@@ -20,7 +20,7 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const user = await Employee.find({
+  const user = await Employee.findOne({
     email: req.body.email,
   });
 
