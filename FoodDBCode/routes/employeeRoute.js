@@ -4,6 +4,7 @@ const Employee = require("../model/employee");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Hours = require("../model/hours");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 router.post("/register", async (req, res) => {
   try {
@@ -135,28 +136,27 @@ router.post("/request-deletion", async (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (token == null) return res.sendStatus(401); // No token
-  // try {
-  //   console.log("Decoded Email:", decoded.email);
-  //   console.log("Employee ID:", req.body.employeeId); // If you use an ID
-
-  //   const updateResult = await Employee.findOneAndUpdate(
-  //     { email: decoded.email },
-  //     { deletionStatus: "Pending Deletion", reason: req.body.reason },
-  //     { new: true }
-  //   );
-
-  //   console.log("Update Result:", updateResult);
+  if (token == null) return res.sendStatus(401);
 
   try {
     const decoded = jwt.verify(token, "secret123");
-    console.log("Decoded Email:", decoded.email);
-    const employee = await Employee.findOneAndUpdate(
-      { email: decoded.email },
-      { deletionStatus: "Pending Deletion", reason: req.body.reason },
-      { new: true }, // Returns the updated document
+
+    // Assuming you have a way to get the employee ID to update
+    const employeeId = req.body.employeeId;
+
+    if (!employeeId) {
+      return res
+        .status(400)
+        .json({ status: "error", error: "Missing employee ID" });
+    }
+    console.log("Employee ID:", employeeId);
+    const employee = await Employee.findByIdAndUpdate(
+      employeeId,
+      { deletionStatus: "Pending Deletion" },
+      { new: false },
     );
-    console.log("deletionStatus:", deletionStatus);
+    console.log("updating result:", employee);
+
     if (!employee) {
       return res
         .status(404)
@@ -165,10 +165,10 @@ router.post("/request-deletion", async (req, res) => {
 
     res.json({ status: "OK", message: "Deletion request submitted" });
   } catch (err) {
+    console.error("Error submitting deletion request:", err);
     res
       .status(500)
       .json({ status: "error", error: "Error submitting request" });
   }
 });
-
 module.exports = router;
