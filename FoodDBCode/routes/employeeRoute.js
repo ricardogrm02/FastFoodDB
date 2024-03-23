@@ -13,7 +13,7 @@ router.post("/register", async (req, res) => {
       email: req.body.email,
       password: newPassword,
     });
-    res.status(200).send("User Added to the database");
+    res.status(200).send("Employee Added to the database");
   } catch (err) {
     res.json({ status: "error", error: "Duplicate email" });
   }
