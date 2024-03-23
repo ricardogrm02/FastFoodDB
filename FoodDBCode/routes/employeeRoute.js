@@ -79,6 +79,25 @@ router.post("/quote", async (req, res) => {
   }
 });
 
+router.get("/quote", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+    const employee = await Employee.findOne({ email: decoded.email });
+
+    if (!employee) {
+      return res.json({ status: "error", error: "Invalid user" });
+    }
+    res.json({ status: "OK", quote: employee.quote });
+  } catch (err) {
+    return res.json({ status: "error", error: "Invalid Token" });
+  }
+});
+
 router.post("/clock-in", async (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
