@@ -9,7 +9,7 @@ const employeeSchema = new mongoose.Schema(
     quote: { type: String },
   },
   {
-    collection: "users",
+    collection: "employees",
   },
 );
 

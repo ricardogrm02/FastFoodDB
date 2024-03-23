@@ -42,7 +42,7 @@ router.post("/login", async (req, res) => {
       },
       "secret123",
     );
-
+    // console.log(token);
     return res.json({ status: "Ok", user: token });
   } else {
     return res.json({ status: "error", user: false });
@@ -53,7 +53,7 @@ router.post("/quote", async (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  console.log(token);
+  // console.log(token);
   if (token == null) return res.sendStatus(401);
 
   try {
@@ -97,18 +97,37 @@ router.post("/clock-in", async (req, res) => {
       hours: req.body.hours,
       overtime: req.body.overtime,
     });
-
-    // Associate hours with employee (assuming a relationship)
-    newHours.employee = employee._id;
-
+    // Associate hours with employee
     await newHours.save();
-
+    employee.hours.push(newHours._id);
+    await employee.save();
     res.json({ status: "OK", message: "Hours logged successfully" });
   } catch (err) {
     return res.json({
       status: "error",
       error: "Invalid Token or clock-in error",
     });
+  }
+});
+
+router.get("/hours", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401); // No token
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+    const employee = await Employee.findOne({ email: decoded.email }).populate(
+      "hours",
+    );
+    if (!employee) {
+      return res.json({ status: "error", error: "Invalid user" });
+    }
+
+    res.json({ status: "OK", hours: employee.hours });
+  } catch (err) {
+    res.json({ status: "error", error: "Error retrieving hours" });
   }
 });
 
