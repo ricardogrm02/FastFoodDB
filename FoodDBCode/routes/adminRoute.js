@@ -103,6 +103,20 @@ router.get("/view/employee", async (req, res) => {
     }
 })
 
+router.post("/create/employee", async (req, res) => {
+    const newPassword = await bcrypt.hash(req.body.password, 10);
+    try{
+        await Employee.create({
+            name: req.body.name,
+            email: req.body.email,
+            password: newPassword
+        })
+        res.status(200).send("Added new employee ot the database")
+    }
+    catch(err){
+       res.json({status: 'error', error: 'could not post employee to database'})
+    }
+})
 
 router.post("/quote", async(req,res) => {
     const authHeader = req.headers["authorization"]
