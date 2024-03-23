@@ -49,19 +49,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// clock in hours;
-// router.post("/hours", async (req, res) => {
-//   await User.create({
-//     hours: req.body.hours,
-//   });
-//   res.status(200).send("User clocked in hours");
-// });
-
-// // modify hours worked
-// router.update("/hours", async (req, res) => {
-//   await User.updateOne();
-// });
-
 router.post("/quote", async (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -99,7 +86,7 @@ router.post("/clock-in", async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, "secret123");
-    const employee = await Employee.findOne({ email: decoded.email }); 
+    const employee = await Employee.findOne({ email: decoded.email });
 
     if (!employee) {
       return res.json({ status: "error", error: "Invalid user" });
@@ -107,18 +94,21 @@ router.post("/clock-in", async (req, res) => {
 
     const newHours = new Hours({
       date: new Date(), // Record current date
-      hours: req.body.hours, 
-      overtime: req.body.overtime 
+      hours: req.body.hours,
+      overtime: req.body.overtime,
     });
 
     // Associate hours with employee (assuming a relationship)
-    newHours.employee = employee._id; 
+    newHours.employee = employee._id;
 
     await newHours.save();
 
     res.json({ status: "OK", message: "Hours logged successfully" });
   } catch (err) {
-    return res.json({ status: "error", error: "Invalid Token or clock-in error" });
+    return res.json({
+      status: "error",
+      error: "Invalid Token or clock-in error",
+    });
   }
 });
 
