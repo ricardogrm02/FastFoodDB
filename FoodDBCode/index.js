@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const express = require('express');
 
-const userRoutes = require('./routes/employeeRoute');
+const customerRoutes = require('./routes/customer/customer');
+const reviewRoutes = require('./routes/customer/review');
 const blogRoutes = require('./routes/customerRoute');
 const adminRoutes = require('./routes/adminRoute');
 
@@ -23,6 +24,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .catch((error) => console.log(error));
 
 app.use('/blogs', blogRoutes)
-app.use('/api/user', userRoutes)
+app.use('/api/customer', customerRoutes)
+app.use('/api/review', reviewRoutes)
 app.use('/api/admin', adminRoutes)
 
