@@ -136,14 +136,27 @@ router.post("/request-deletion", async (req, res) => {
   const token = authHeader && authHeader.split(" ")[1];
 
   if (token == null) return res.sendStatus(401); // No token
+  // try {
+  //   console.log("Decoded Email:", decoded.email);
+  //   console.log("Employee ID:", req.body.employeeId); // If you use an ID
+
+  //   const updateResult = await Employee.findOneAndUpdate(
+  //     { email: decoded.email },
+  //     { deletionStatus: "Pending Deletion", reason: req.body.reason },
+  //     { new: true }
+  //   );
+
+  //   console.log("Update Result:", updateResult);
 
   try {
-    const employee = await Employee.findByIdAndUpdate(
-      req.body.employeeId,
+    const decoded = jwt.verify(token, "secret123");
+    console.log("Decoded Email:", decoded.email);
+    const employee = await Employee.findOneAndUpdate(
+      { email: decoded.email },
       { deletionStatus: "Pending Deletion", reason: req.body.reason },
       { new: true }, // Returns the updated document
     );
-
+    console.log("deletionStatus:", deletionStatus);
     if (!employee) {
       return res
         .status(404)
