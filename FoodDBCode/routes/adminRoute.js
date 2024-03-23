@@ -79,7 +79,46 @@ router.get("/view/product", async (req, res) => {
     }
 })
 
+router.delete('/delete/product/:productId', async (req, res) => {
+    try {
+        const product = await Product.findOneAndDelete({ productId: req.params.productId });
+        if (!product) {
+            return res.status(404).send(); // Send 404 if no blog was found
+        }
+        res.send(`Successfuly deleted prodct: ${product}`); // Send deleted blog
+    } catch (error) {
+        res.status(500).send(error); // Send 500 if an error occurs
+    }
+});
 
+router.post("/quote", async(req,res) => {
+    const authHeader = req.headers["authorization"]
+    const token = authHeader && authHeader.split(' ')[1]
+    
+    console.log(token)
+    if (token == null) return res.sendStatus(401);
+
+    try{
+        const decoded = jwt.verify(token, 'secret123')
+
+        const admin = await Admin.findOne({
+            email: decoded.email
+        })
+
+        if(!admin){
+            return res.json({status: 'error', error: 'Not a valid admin'})
+        }
+
+        await Admin.updateOne(
+            {email: decoded.email},
+            {$set: {quote: req.body.quote}}
+        )
+
+        return res.json({status: 'Ok'})
+    }catch(err){
+        return res.json({status: 'error', error: "Invalid Token"})
+    }
+})
 
 
 module.exports = router;
