@@ -1,83 +1,134 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('../model/employee');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const Employee = require("../model/employee");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const Hours = require("../model/hours");
 
 router.post("/register", async (req, res) => {
-    try{
-        const newPassword = await bcrypt.hash(req.body.password, 10)
-        await User.create({
-            name: req.body.name,
-            email: req.body.email,
-            password: newPassword
-        })
-        res.status(200).send("User Added to the database")
+  try {
+    const newPassword = await bcrypt.hash(req.body.password, 10);
+    await Employee.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: newPassword,
+    });
+    res.status(200).send("Employee Added to the database");
+  } catch (err) {
+    res.json({ status: "error", error: "Duplicate email" });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  const user = await Employee.findOne({
+    email: req.body.email,
+  });
+
+  if (!user) {
+    return { status: "error", error: "Invalid Login" };
+  }
+  // console.log(user)
+
+  const isPasswordValid = await bcrypt.compare(
+    req.body.password,
+    user.password,
+  );
+
+  if (isPasswordValid) {
+    const token = jwt.sign(
+      {
+        name: user.name,
+        email: user.email,
+      },
+      "secret123",
+    );
+    // console.log(token);
+    return res.json({ status: "Ok", user: token });
+  } else {
+    return res.json({ status: "error", user: false });
+  }
+});
+
+router.post("/quote", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  // console.log(token);
+  if (token == null) return res.sendStatus(401);
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+
+    const user = await Employee.findOne({
+      email: decoded.email,
+    });
+
+    if (!user) {
+      return res.json({ status: "error", error: "Not a user" });
     }
-    catch(err){
-       res.json({status: 'error', error: 'Duplicate email'})
+
+    await Employee.updateOne(
+      { email: decoded.email },
+      { $set: { quote: req.body.quote } },
+    );
+
+    return res.json({ status: "Ok" });
+  } catch (err) {
+    return res.json({ status: "error", error: "Invalid Token" });
+  }
+});
+
+router.post("/clock-in", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401); // No token
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+    const employee = await Employee.findOne({ email: decoded.email });
+
+    if (!employee) {
+      return res.json({ status: "error", error: "Invalid user" });
     }
-})
 
-router.post('/login', async(req,res)=>{
+    const newHours = new Hours({
+      date: new Date(), // Record current date
+      hours: req.body.hours,
+      overtime: req.body.overtime,
+    });
+    // Associate hours with employee
+    await newHours.save();
+    employee.hours.push(newHours._id);
+    await employee.save();
+    res.json({ status: "OK", message: "Hours logged successfully" });
+  } catch (err) {
+    return res.json({
+      status: "error",
+      error: "Invalid Token or clock-in error",
+    });
+  }
+});
 
-    const user = await User.find({
-        email: req.body.email
-    })
+router.get("/hours", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-    if(!user){
-        return {status: 'error', error: 'Invalid Login'}
+  if (token == null) return res.sendStatus(401); // No token
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+    const employee = await Employee.findOne({ email: decoded.email }).populate(
+      "hours",
+    );
+    if (!employee) {
+      return res.json({ status: "error", error: "Invalid user" });
     }
-    // console.log(user)
 
-    const isPasswordValid = await bcrypt.compare(      
-        req.body.password,
-        user.password
-    )
-    
-
-    if (isPasswordValid){
-        const token = jwt.sign(
-            {
-                name: user.name,
-                email: user.email, 
-            },
-            'secret123'
-        )
-
-        return res.json({status:'Ok', user: token})
-    } else {
-        return res.json({status:'error', user: false})
-    }
-})
-
-router.post("/quote", async(req,res) => {
-    const authHeader = req.headers["authorization"]
-    const token = authHeader && authHeader.split(' ')[1]
-    
-    console.log(token)
-    if (token == null) return res.sendStatus(401);
-
-    try{
-        const decoded = jwt.verify(token, 'secret123')
-
-        const user = await User.findOne({
-            email: decoded.email
-        })
-
-        if(!user){
-            return res.json({status: 'error', error: 'Not a user'})
-        }
-
-        await User.updateOne(
-            {email: decoded.email},
-            {$set: {quote: req.body.quote}}
-        )
-
-        return res.json({status: 'Ok'})
-    }catch(err){
-        return res.json({status: 'error', error: "Invalid Token"})
-    }
-})
+    res.json({ status: "OK", hours: employee.hours });
+  } catch (err) {
+    res.json({ status: "error", error: "Error retrieving hours" });
+  }
+});
 
 module.exports = router;
