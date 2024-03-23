@@ -118,6 +118,18 @@ router.post("/create/employee", async (req, res) => {
     }
 })
 
+router.delete('/delete/employee/:email', async (req, res) => {
+    try {
+        const employee = await Employee.findOneAndDelete({ email: req.params.email });
+        if (!employee) {
+            return res.status(404).send(); // Send 404 if no blog was found
+        }
+        res.send(`Successfuly deleted employee: ${employee}`); // Send deleted blog
+    } catch (error) {
+        res.status(500).send(error); // Send 500 if an error occurs
+    }
+});
+
 router.post("/quote", async(req,res) => {
     const authHeader = req.headers["authorization"]
     const token = authHeader && authHeader.split(' ')[1]
