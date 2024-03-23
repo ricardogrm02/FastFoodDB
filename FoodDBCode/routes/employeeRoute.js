@@ -131,4 +131,31 @@ router.get("/hours", async (req, res) => {
   }
 });
 
+router.post("/request-deletion", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401); // No token
+
+  try {
+    const employee = await Employee.findByIdAndUpdate(
+      req.body.employeeId,
+      { deletionStatus: "Pending Deletion", reason: req.body.reason },
+      { new: true }, // Returns the updated document
+    );
+
+    if (!employee) {
+      return res
+        .status(404)
+        .json({ status: "error", error: "Employee not found" });
+    }
+
+    res.json({ status: "OK", message: "Deletion request submitted" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ status: "error", error: "Error submitting request" });
+  }
+});
+
 module.exports = router;

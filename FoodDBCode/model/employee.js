@@ -7,6 +7,11 @@ const employeeSchema = new mongoose.Schema(
     password: { type: String, required: true },
     hours: [{ type: mongoose.Schema.Types.ObjectId, ref: "Hours" }],
     quote: { type: String },
+    deletetionStatus: {
+      type: String,
+      enum: ["Active", "Pending Deletion", "Deleted"],
+      default: "Active",
+    },
   },
   {
     collection: "employees",
