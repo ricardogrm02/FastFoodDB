@@ -91,4 +91,35 @@ router.post("/quote", async (req, res) => {
   }
 });
 
+router.post("/clock-in", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401); // No token
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+    const employee = await Employee.findOne({ email: decoded.email }); 
+
+    if (!employee) {
+      return res.json({ status: "error", error: "Invalid user" });
+    }
+
+    const newHours = new Hours({
+      date: new Date(), // Record current date
+      hours: req.body.hours, 
+      overtime: req.body.overtime 
+    });
+
+    // Associate hours with employee (assuming a relationship)
+    newHours.employee = employee._id; 
+
+    await newHours.save();
+
+    res.json({ status: "OK", message: "Hours logged successfully" });
+  } catch (err) {
+    return res.json({ status: "error", error: "Invalid Token or clock-in error" });
+  }
+});
+
 module.exports = router;
