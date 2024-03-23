@@ -4,6 +4,7 @@ const Admin = require('../model/admin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Product = require('../model/product')
+const Employee = require('../model/employee')
 
 router.post("/register", async (req, res) => {
     try{
@@ -90,6 +91,18 @@ router.delete('/delete/product/:productId', async (req, res) => {
         res.status(500).send(error); // Send 500 if an error occurs
     }
 });
+
+
+
+router.get("/view/employee", async (req, res) => {
+    const employeeList = await Employee.find({})
+    try {
+        res.status(200).send(employeeList)
+    } catch (err) {
+        res.status(500).json({status: 'error', error: "Could not retrieve employee from the database"})
+    }
+})
+
 
 router.post("/quote", async(req,res) => {
     const authHeader = req.headers["authorization"]
