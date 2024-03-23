@@ -4,6 +4,7 @@ const Employee = require("../model/employee");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Hours = require("../model/hours");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 router.post("/register", async (req, res) => {
   try {
@@ -78,6 +79,25 @@ router.post("/quote", async (req, res) => {
   }
 });
 
+router.get("/quote", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+    const employee = await Employee.findOne({ email: decoded.email });
+
+    if (!employee) {
+      return res.json({ status: "error", error: "Invalid user" });
+    }
+    res.json({ status: "OK", quote: employee.quote });
+  } catch (err) {
+    return res.json({ status: "error", error: "Invalid Token" });
+  }
+});
+
 router.post("/clock-in", async (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -128,6 +148,37 @@ router.get("/hours", async (req, res) => {
     res.json({ status: "OK", hours: employee.hours });
   } catch (err) {
     res.json({ status: "error", error: "Error retrieving hours" });
+  }
+});
+
+router.post("/request-deletion", async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  try {
+    const decoded = jwt.verify(token, "secret123");
+
+    const employee = await Employee.findOneAndUpdate(
+      { email: decoded.email },
+      { deletionStatus: "Pending Deletion", reason: req.body.reason },
+      { new: true },
+    );
+
+    if (!employee) {
+      return res.status(404).json({
+        status: "error",
+        error: "Employee not found or not authorized",
+      });
+    }
+
+    res.json({ status: "OK", message: "Deletion request submitted" });
+  } catch (err) {
+    console.error("Error submitting deletion request:", err); // Log the error
+    res
+      .status(500)
+      .json({ status: "error", error: "Error submitting request" });
   }
 });
 
