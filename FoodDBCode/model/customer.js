@@ -4,7 +4,8 @@ const customerSchema = new mongoose.Schema({
   userName: {type: String, required: true},
   email: {type: String, required: true, unique: true},
   password: {type: String, required: true},
-  quote: {type: String}
+  money: {type: Number, required: true},
+  quote: {type: String},
 },{
   collection: 'Customer'
 })
