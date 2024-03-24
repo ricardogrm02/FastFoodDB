@@ -7,7 +7,7 @@ const customerSchema = new mongoose.Schema({
   money: {type: Number, required: true},
   quote: {type: String},
 },{
-  collection: 'Customer'
+  collection: 'customer'
 })
 
 const Customer = mongoose.model("customer", customerSchema);
