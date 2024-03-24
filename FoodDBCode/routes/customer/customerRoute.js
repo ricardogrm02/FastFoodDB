@@ -27,7 +27,6 @@ router.post("/register", async (req, res) => {
     })
     return res.status(200).send(`New Customer: ${req.body.userName} created!`);
   } catch(err) {
-    console.log(err);
     return res.status(400).send(`ERROR CREATING CUSTOMER: ${err}`)
   }
 });
@@ -50,8 +49,7 @@ router.post("/login", async (req, res) => {
   if(validPassword) {
     const token = jwt.sign({
         userName: customer.userName,
-        email: customer.email,
-        money: customer.money
+        email: customer.email
       },
       'burgerKingLiterallySucks'
     )
@@ -131,10 +129,9 @@ router.post("/pay", async (req, res) => {
     }
 
     // Check if customer has enough money
-    console.log(decoded.money, menuItem.productPrice)
     
-    const newAllowance = Math.round((decoded.money - menuItem.productPrice) * 100) / 100;
-    console.log(newAllowance)
+    const newAllowance = Math.round((customer.money - menuItem.productPrice) * 100) / 100;
+
     if (newAllowance < 0 ) {
       return res.status(406).json({error:'You\'re broke'})
     }
@@ -145,7 +142,7 @@ router.post("/pay", async (req, res) => {
       {$set: {money: newAllowance}}
     )
     
-    return res.sendStatus(202).json({msg: "Thank you for spending your money here instead of Burger King!"})
+    return res.status(202).json({msg: "Thank you for spending your money here instead of Burger King!"})
   }catch(err){
     return res.status(403).json({error: `INVALID TOKEN: ${err}`})
   }
@@ -168,14 +165,14 @@ router.post("/deposit", async (req, res) => {
         return res.status(401).json({error:'Not a authorized User'})
     }
     // Increase money allowance
-    const newAllowance = decoded.money + req.body.money;
+    const newAllowance = customer.money + Number(req.body.money);
 
     await Customer.updateOne(
       {email: decoded.email},
       {$set: {money: newAllowance}}
     )
     
-    return res.sendStatus(202).json({msg: "You are now less broke!"})
+    return res.status(202).json({msg: "You are now less broke!"})
   }catch(err){
     return res.status(403).json({error: `INVALID TOKEN: ${err}`})
   }
