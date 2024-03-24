@@ -21,7 +21,7 @@ router.post("/createReview", async (req, res) => {
 
 router.get("/findReview", async (req, res) => {
   // find the user id's reviews and return an array of each object
-  const review = await Review.findOne({});
+  const review = await Review.findOne({ userID: req.body.userID });
   try {
     await review.save();
     res.status(200).send(review);
