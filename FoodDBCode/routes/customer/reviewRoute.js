@@ -4,7 +4,7 @@ const Review = require("../../model/review");
 
 // Customer Reviews
 
-router.post("/create", async (req, res) => {
+router.post("/createReview", async (req, res) => {
   // take the body and post a new review
   try {
     Review.create({
@@ -14,32 +14,53 @@ router.post("/create", async (req, res) => {
       userID: req.body.userID,
     });
     res.status(200).send("Review added to database");
-  } catch (err) {
+  } catch (error) {
     res.json({ status: "Error", error: "Key/Value Error" });
   }
-  res.status(200).send("Worked");
 });
 
-router.get("/", async (req, res) => {
+router.get("/findReview", async (req, res) => {
   // find the user id's reviews and return an array of each object
+  const review = await Review.findOne({ userID: req.body.userID });
+  try {
+    await review.save();
+    res.status(200).send(review);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
-router.get("/:id", async (req, res) => {
-  // find the user id's reviews and return an array of each object
-});
-
-router.delete("/:id", async (req, res) => {
+router.delete("/deleteReview", async (req, res) => {
   // find review and delete it
   try {
-    Review.findByIdAndDelete(req.params.id);
+    const review = await Review.findOneAndDelete({ userID: req.body.userID });
     res.status(200).send("Sucessful Deleted Review");
-  } catch {
+  } catch (error) {
     res.status(200).send("Failed to Delete Review");
   }
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/editReview", async (req, res) => {
   // find review and edit it
+  try {
+    const review = await Review.findOneAndUpdate(
+      { userID: req.body.userID },
+      {
+        $set: {
+          rating: req.body.rating,
+          title: req.body.title,
+          description: req.body.description,
+        },
+      },
+      { new: true },
+    );
+    if (!review) {
+      res.status(404).send();
+    }
+    res.status(200).send(review);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 module.exports = router;
