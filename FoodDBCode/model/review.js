@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema(
   {
-    rating: { Number, required: true },
-    title: { String, required: true },
-    description: { String, required: true },
-    userID: { Number, unique: true },
+    rating: { type: Number, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    userID: { type: Number, unique: true },
   },
   {
-    collection: "Customer",
+    collection: "review",
   },
 );
 
