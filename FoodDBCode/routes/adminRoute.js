@@ -92,6 +92,21 @@ router.delete('/delete/product/:productId', async (req, res) => {
     }
 });
 
+router.patch('/update/product/:id', async (req, res) => {
+    try{
+        const product = await Product.findOneAndUpdate(
+            {productId: req.params.id},
+            req.body,
+            {new:true})
+        if(!product){
+            res.status(404).send()
+        }
+        res.status(200).send(product)
+    }catch(error){
+        res.status(500).send("Error updating product")
+    }
+})
+
 
 
 router.get("/view/employee", async (req, res) => {
