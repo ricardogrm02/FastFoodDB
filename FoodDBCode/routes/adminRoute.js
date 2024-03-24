@@ -4,6 +4,7 @@ const Admin = require('../model/admin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Product = require('../model/product')
+const Employee = require('../model/employee')
 
 router.post("/register", async (req, res) => {
     try{
@@ -86,6 +87,59 @@ router.delete('/delete/product/:productId', async (req, res) => {
             return res.status(404).send(); // Send 404 if no blog was found
         }
         res.send(`Successfuly deleted prodct: ${product}`); // Send deleted blog
+    } catch (error) {
+        res.status(500).send(error); // Send 500 if an error occurs
+    }
+});
+
+router.patch('/update/product/:id', async (req, res) => {
+    try{
+        const product = await Product.findOneAndUpdate(
+            {productId: req.params.id},
+            req.body,
+            {new:true})
+        if(!product){
+            res.status(404).send()
+        }
+        res.status(200).send(product)
+    }catch(error){
+        res.status(500).send("Error updating product")
+    }
+})
+
+
+
+router.get("/view/employee", async (req, res) => {
+    const employeeList = await Employee.find({})
+    try {
+        res.status(200).send(employeeList)
+    } catch (err) {
+        res.status(500).json({status: 'error', error: "Could not retrieve employee from the database"})
+    }
+})
+
+router.post("/create/employee", async (req, res) => {
+    const newPassword = await bcrypt.hash(req.body.password, 10);
+    try{
+        await Employee.create({
+            name: req.body.name,
+            email: req.body.email,
+            password: newPassword
+        })
+        res.status(200).send("Added new employee ot the database")
+    }
+    catch(err){
+       res.json({status: 'error', error: 'could not post employee to database'})
+    }
+})
+
+router.delete('/delete/employee/:email', async (req, res) => {
+    try {
+        const employee = await Employee.findOneAndDelete({ email: req.params.email });
+        if (!employee) {
+            return res.status(404).send(); // Send 404 if no blog was found
+        }
+        res.send(`Successfuly deleted employee: ${employee}`); // Send deleted blog
     } catch (error) {
         res.status(500).send(error); // Send 500 if an error occurs
     }
