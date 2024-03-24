@@ -23,7 +23,7 @@ http requests. Use Postman, and the appropriate api paths to test various reques
 ### Contributors
 **Group Name**: The Backend Kittens. 
 
-**Group Members**: Randy Do, Alan Cortez, Esteban Zapata, Raxel Ortiz, Alejandro Ramos, & Ricardo Granados
+**Group Members**: Randy Do, Alan Cortez, Esteban Zapata, Raxel Ortiz, Alejandro Ramos, & Ricardo Granados Macias
 
 
 
