@@ -7,7 +7,7 @@ Follow the directions below to clone the repository onto your local device.
 3. In the terminal enter: **git clone {link}.**
 
 ## Setting Up The Program
-Before starting the program, the node_modules folder must be deleted to and reinstalled.
+Before starting the program, the node_modules folder must be deleted and reinstalled.
 The node_modules folder can be deleted either through your preferred IDE or file system GUI.
 After successfuly deleting the node_modules folder, reinstall them by following the steps below.
 1. Open up a terminal window.
@@ -87,7 +87,7 @@ Admin, Employee, and Customer roles are share the ability to register accounts w
 
 ### Customer Features
 Despite making up a majority of users Customer roles have limited functionality in the database in order to maintain the 
-integrity of the database. THe customers role has been limited so that they are not able to modify the admin, products, employees, or employee hours. They are limited to read functionality, and minor post functionality. Customers can request to view, but not modify the list of products so they can decide what they would like to purchase. In terms of post functionality, the customer can pay for a product from the database, or post a new wallet balance. Addtionally, they can post reviews about the fast food establishment. Customers will be able to use routes that begin with: http://localhost:3000/api/customer and http://localhost:3000/api/review/
+integrity of the database. The customers role has been limited so that they are not able to modify the admin, products, employees, or employee hours. They are limited to read functionality, and minor post functionality. Customers can request to view, but not modify the list of products so they can decide what they would like to purchase. In terms of post functionality, the customer can pay for a product from the database, or post a new wallet balance. Addtionally, they can post reviews about the fast food establishment. Customers will be able to use routes that begin with: http://localhost:3000/api/customer and http://localhost:3000/api/review/
 
 ### Employee Features
 Users who have the Employee role are able to use the database as an employee portal. They can read their hours worked. They can also post and schedule their hours for a date on a specific date. Some employees, may wish to no longer work for the establishment like in a real world situation. In that scenario they have the option of posting a notice to the database, to request the termination of their account, and employement at the establishment. Employees will use routes that begin with: http://localhost:3000/api/employee/
